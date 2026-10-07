@@ -1,4 +1,4 @@
-# Project Context — HelperX (razorpay)
+# Project Context — HelperX
 
 > Generated on 2026-09-02. Snapshot of the project structure, stack, data flow, and key files at this point in time.
 
@@ -6,7 +6,7 @@
 
 **HelperX** is an "AI merchant intelligence" web app. Merchants upload CSV exports (orders, customers, products, transactions, returns), the app ingests each file into a dynamically created SQLite table and saves the CSV under `file/`, uses an LLM (via OpenRouter) to build a *semantic understanding* of each dataset, and then a LangGraph agent answers business questions and records insights in a persistent logbook.
 
-The repo sits in a folder named `razorpay` but the product is branded **HelperX**.
+The product is branded **HelperX**.
 
 ## 2. Tech Stack
 
@@ -23,7 +23,6 @@ The repo sits in a folder named `razorpay` but the product is branded **HelperX*
 ## 3. Project Structure
 
 ```
-razorpay/
 ├── app/                                # Next.js App Router
 │   ├── api/
 │   │   ├── agent/
@@ -161,9 +160,10 @@ From `sampleenv` (user provides values in `.env`):
 |---|---|
 | `OPENROUTER_API_KEY` | Primary OpenRouter key for AI analysis + agent LLM |
 | `OPENROUTER_API_KEYS` | Optional comma- or newline-separated key pool; keys rotate on quota/rate-limit failures |
-| `OPENROUTER_MODEL` | Model name (e.g. `openai/gpt-4o-mini`) — defaulted in `api/analyze` |
+| `OPENROUTER_MODEL` | Model name, for example `openai/gpt-4o-mini` |
+| `OPENROUTER_FALLBACK_MODEL` | Optional fallback model, for example `openai/gpt-4o-mini` |
 
-Additional secret expected by `web-search.ts` (not in sampleenv): `TAVILY_API_KEY`.
+`TAVILY_API_KEY` is optional and enables current web research through `web-search.ts`.
 
 ## 9. Observations / Heads-Up (worth noting)
 
@@ -171,7 +171,7 @@ Additional secret expected by `web-search.ts` (not in sampleenv): `TAVILY_API_KE
 2. **Missing `/api/agent`.** `app/dashboard/page.tsx` posts to `/api/agent` for `initial_analysis` and `chat` and expects `{ message, insights }`. No such route file exists → the agent UI would 404 / fail. `lib/agent/{graph,node,state}.ts` are empty placeholders.
 3. **Duplicated Prisma skill packages** exist under `.agents/`, `.claude/`, and `.windsurf/skills/` (identical content); likely also duplicated under `lib/generated/prisma` vs `app/generated/prisma` (the `lib/` copy is .gitignored).
 4. **Inline styling everywhere:** pages use `<style dangerouslySetInnerHTML>` + Tailwind classes; `app/page.tsx` contains a full ~500-line embedded stylesheet and demo mock datasets — the landing page is static/hardcoded (no API calls).
-5. **`README.md` is mostly default** create-next-app boilerplate with a stray `# MERCH-MOD` footer line.
+5. **`README.md` is mostly default** create-next-app boilerplate.
 6. **Per-page lockstep:** The dashboard and upload pages both call `prisma` directly; no shared memory with the tools beyond `lib/db.ts` singleton.
 
 ## 8. Notes-to-self for future context

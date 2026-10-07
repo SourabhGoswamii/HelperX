@@ -8,7 +8,7 @@ export function getOpenRouterApiKeys(): string[] {
     .filter((value): value is string => Boolean(value))
     .flatMap((value) => value.split(/[,\r\n]+/))
     .map((value) => value.trim())
-    .filter(Boolean);
+    .filter((value) => /^sk-or-v1-[A-Za-z0-9_-]+$/.test(value));
 
   return [...new Set(configured)];
 }
@@ -24,7 +24,7 @@ export function getRotatedOpenRouterApiKeys(): string[] {
 
 export function isOpenRouterQuotaError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return /(?:\b(?:401|402|429)\b|quota|rate.?limit|credits?|insufficient)/i.test(
+  return /(?:\b(?:401|402|429)\b|quota|rate.?limit|credits?|insufficient|missing authentication|invalid.*(?:api|authentication)|unauthori[sz]ed)/i.test(
     message,
   );
 }

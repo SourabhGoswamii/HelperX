@@ -1,11 +1,26 @@
-OPENROUTER_API_KEY=
-# Optional comma- or newline-separated pool. Keys are tried in rotation when
-# a key is rate-limited, out of credits, or over quota.
-OPENROUTER_API_KEYS=
-OPENROUTER_MODEL=
-# Optional fallback used when the selected provider is overloaded.
+# Copy this file to .env.local and replace example values with your own.
+# Never commit .env.local or real API keys.
+
+# One primary OpenRouter key. Required unless OPENROUTER_API_KEYS is set.
+# Example: sk-or-v1-0123456789abcdef
+OPENROUTER_API_KEY=sk-or-v1-your-primary-key
+
+# Optional key pool. Keys are tried in rotation when a key is rate-limited,
+# out of credits, or over quota. Comma- or newline-separated values work.
+# Example: sk-or-v1-key-one,sk-or-v1-key-two
+OPENROUTER_API_KEYS=sk-or-v1-key-one,sk-or-v1-key-two
+
+# OpenRouter model used for semantic analysis and the agent.
+# Example: openai/gpt-4o-mini
+OPENROUTER_MODEL=openai/gpt-4o-mini
+
+# Optional fallback model used when the selected provider is overloaded.
+# Example: google/gemini-2.0-flash-001
 OPENROUTER_FALLBACK_MODEL=openai/gpt-4o-mini
-TAVILY_API_KEY=
+
+# Optional. Enables current web research through Tavily.
+# Example: tvly-dev-0123456789abcdef
+TAVILY_API_KEY=tvly-your-tavily-key
 
 # No database URL is needed. HelperX now uses a local SQLite database at
 # prisma/dev.db, created automatically by `npx prisma db push`. Uploaded
@@ -14,6 +29,12 @@ TAVILY_API_KEY=
 # System prompts. Each variable is read by lib/prompts.ts at request
 # time; if unset, a hard-coded fallback is used. Leave blank to keep the
 # built-in behavior. These are server-only — never use NEXT_PUBLIC_.
-MERCH_SEMANTIC_PROMPT=
-MERCH_AGENT_PROMPT=
-MERCH_INITIAL_ANALYSIS_PROMPT=
+# Optional prompt overrides. Leave blank to use HelperX's built-in prompts.
+# Example: You are a careful CSV semantic analyzer. Return only valid JSON.
+HELPERX_SEMANTIC_PROMPT=
+
+# Example: You are HelperX, an evidence-based merchant intelligence analyst.
+HELPERX_AGENT_PROMPT=
+
+# Example: Analyze the uploaded data and identify the top three growth opportunities.
+HELPERX_INITIAL_ANALYSIS_PROMPT=

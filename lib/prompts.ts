@@ -5,9 +5,9 @@
  * the client.
  *
  * Variables:
- *   MERCH_SEMANTIC_PROMPT         — semantic analysis of a CSV's columns
- *   MERCH_AGENT_PROMPT            — HelperX agent's main system prompt
- *   MERCH_INITIAL_ANALYSIS_PROMPT — instruction sent on first-run analysis
+ *   HELPERX_SEMANTIC_PROMPT         — semantic analysis of a CSV's columns
+ *   HELPERX_AGENT_PROMPT            — HelperX agent's main system prompt
+ *   HELPERX_INITIAL_ANALYSIS_PROMPT — instruction sent on first-run analysis
  */
 
 const FALLBACK_SEMANTIC_PROMPT = `You are a data semantic analyzer for HelperX.
@@ -133,22 +133,22 @@ function readPrompt(envVar: string, fallback: string): string {
 }
 
 export const SEMANTIC_PROMPT = readPrompt(
-  "MERCH_SEMANTIC_PROMPT",
+  "HELPERX_SEMANTIC_PROMPT",
   FALLBACK_SEMANTIC_PROMPT,
 );
 
 export const AGENT_SYSTEM_PROMPT = readPrompt(
-  "MERCH_AGENT_PROMPT",
+  "HELPERX_AGENT_PROMPT",
   FALLBACK_AGENT_PROMPT,
 );
 
 export const INITIAL_ANALYSIS_PROMPT = readPrompt(
-  "MERCH_INITIAL_ANALYSIS_PROMPT",
+  "HELPERX_INITIAL_ANALYSIS_PROMPT",
   FALLBACK_INITIAL_ANALYSIS_PROMPT,
 );
 
 export const PROMPT_ENV_VARS = {
-  semantic: "MERCH_SEMANTIC_PROMPT",
-  agent: "MERCH_AGENT_PROMPT",
-  initialAnalysis: "MERCH_INITIAL_ANALYSIS_PROMPT",
+  semantic: "HELPERX_SEMANTIC_PROMPT",
+  agent: "HELPERX_AGENT_PROMPT",
+  initialAnalysis: "HELPERX_INITIAL_ANALYSIS_PROMPT",
 } as const;

@@ -59,7 +59,7 @@ function parseAgentSections(text: string): AgentSection[] {
   ];
 
   if (!matches.length) {
-    return [{ id: "response", title: "MerchMind response", body: normalized, kind: "other" }];
+    return [{ id: "response", title: "HelperX response", body: normalized, kind: "other" }];
   }
 
   const sections: AgentSection[] = [];
@@ -88,7 +88,7 @@ function parseAgentSections(text: string): AgentSection[] {
 
   return sections.length
     ? sections
-    : [{ id: "response", title: "MerchMind response", body: normalized, kind: "other" }];
+    : [{ id: "response", title: "HelperX response", body: normalized, kind: "other" }];
 }
 
 function compactText(text: string): { text: string; truncated: boolean } {
@@ -188,7 +188,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       setAgentMessage(
-        error instanceof Error ? error.message : "MerchMind could not complete the analysis.",
+        error instanceof Error ? error.message : "HelperX could not complete the analysis.",
       );
       setLatestMode(mode);
     } finally {
@@ -202,7 +202,7 @@ export default function DashboardPage() {
    */
 
   async function reanalyse(dataset: Dataset) {
-    if (dataset.status !== "READY") return;
+    if (dataset.status !== "FAILED") return;
 
     setAgentMessage("");
     setLatestMode(null);
@@ -309,7 +309,7 @@ export default function DashboardPage() {
             <circle cx="7.4" cy="16.2" r="2.1" fill="currentColor" />
             <circle cx="18.6" cy="16.2" r="2.1" fill="currentColor" />
           </svg>
-          <span className="serif text-lg font-medium">MerchMind</span>
+          <span className="serif text-lg font-medium">HelperX</span>
           <span className="mono ml-2 hidden text-[10px] tracking-[.14em] text-[var(--ink-3)] sm:inline">
             / workspace
           </span>
@@ -409,14 +409,15 @@ export default function DashboardPage() {
                         Details
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => void reanalyse(dataset)}
-                        disabled={dataset.status !== "READY"}
-                        className="dataset-action"
-                      >
-                        {dataset.context?.context ? "Re-analyse" : "Analyze"}
-                      </button>
+                      {dataset.status === "FAILED" && (
+                        <button
+                          type="button"
+                          onClick={() => void reanalyse(dataset)}
+                          className="dataset-action"
+                        >
+                          Re-analyse
+                        </button>
+                      )}
 
                       <button
                         type="button"
@@ -514,7 +515,7 @@ export default function DashboardPage() {
               <span className="empty-glyph" aria-hidden="true">⌁</span>
               <div>
                 <strong>No actionable signal yet.</strong>
-                <p>Ask MerchMind a specific business question below to start an investigation.</p>
+                <p>Ask HelperX a specific business question below to start an investigation.</p>
               </div>
             </div>
           )}
@@ -524,7 +525,7 @@ export default function DashboardPage() {
         <section className="tile t-agent">
           <div className="section-caption-row">
             <div>
-              <span className="section-kicker">Ask MerchMind</span>
+              <span className="section-kicker">Ask HelperX</span>
               <h2 className="serif section-title">Work with the agent.</h2>
             </div>
             <span className="section-side">
@@ -544,7 +545,7 @@ export default function DashboardPage() {
                       className={`answer-card ${index === 0 ? "lead" : ""} ${section.kind === "roadmap" ? "roadmap" : ""}`}
                     >
                       <span className="answer-kicker">
-                        {index === 0 ? "MerchMind's answer" : section.kind === "roadmap" ? "Roadmap" : section.kind}
+                        {index === 0 ? "HelperX's answer" : section.kind === "roadmap" ? "Roadmap" : section.kind}
                       </span>
                       <h3 className="serif">{section.title}</h3>
                       <p>{compact.text}</p>
@@ -592,10 +593,10 @@ export default function DashboardPage() {
             <div className="chat-placeholder">
               <p>
                 {agentLoading
-                  ? "MerchMind is working through your shared business context…"
+                  ? "HelperX is working through your shared business context…"
                   : datasets.length
-                    ? "Ask a question about your business. MerchMind will use every uploaded dataset as context."
-                    : "Ask MerchMind anything. Upload a CSV any time to add context."}
+                    ? "Ask a question about your business. HelperX will use every uploaded dataset as context."
+                    : "Ask HelperX anything. Upload a CSV any time to add context."}
               </p>
             </div>
           )}
@@ -612,8 +613,8 @@ export default function DashboardPage() {
               disabled={agentLoading}
               placeholder={
                 datasets.length
-                  ? "Ask MerchMind anything about your business…"
-                  : "Ask MerchMind anything — datasets give it context."
+                  ? "Ask HelperX anything about your business…"
+                  : "Ask HelperX anything — datasets give it context."
               }
             />
 
@@ -629,7 +630,7 @@ export default function DashboardPage() {
           </div>
 
           <p className="agent-footnote">
-            MerchMind will read ALL ready datasets · research is used when available
+            HelperX will read ALL ready datasets · research is used when available
           </p>
         </section>
 
