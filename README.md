@@ -1,16 +1,16 @@
-# MerchMind
+# HelperX
 
 > AI merchant intelligence for your business — turn raw CSV exports into clear
 > insights and actionable growth opportunities.
 
-MerchMind lets a merchant upload the CSVs they already have (orders,
+HelperX lets a merchant upload the CSVs they already have (orders,
 customers, products, transactions, returns), infers what every column means,
 and exposes a natural-language agent that answers business questions using the
 merchant's own data. Important findings are saved into a persistent
 **logbook** so the agent remembers across sessions.
 
 The repo folder is named `razorpay` (development history) but the product is
-branded **MerchMind**.
+branded **HelperX**.
 
 ---
 
@@ -21,7 +21,7 @@ they just don't have the time, tooling, or data team to read it. Spreadsheets
 show rows; dashboards show charts; neither one explains *what the numbers mean
 for the business*.
 
-MerchMind bridges that gap:
+HelperX bridges that gap:
 
 - It understands your data automatically (column types, joins, semantics).
 - It answers business questions in plain English, citing the underlying rows.
@@ -52,7 +52,7 @@ End-to-end:
 
 1. **Upload** — Drop one or more `.csv` files on `/upload`. The server streams
    them in 256 KB chunks, sanitizes column names, infers types, and creates a
-   real PostgreSQL table per dataset.
+   local SQLite table per dataset. The original CSV is saved under `./file`.
 2. **Understand** — Once upload completes, an LLM pass infers a semantic
    schema (`entity`, `description`, `columns`) for each dataset and stores it
    as `DatasetContext`. Status moves `UPLOADING → ANALYZING → READY`.
@@ -91,25 +91,25 @@ End-to-end:
 ```mermaid
 flowchart LR
   Browser -->|upload csv| UploadAPI[POST /api/upload]
-  UploadAPI -->|chunked stream| UploadSession[(.uploads session dir)]
-  UploadSession -->|assemble| FinalizeAPI[POST /api/upload/:id/finalize]
-  FinalizeAPI -->|create table + insert| Postgres[(PostgreSQL via Prisma)]
+  UploadAPI -->|chunked stream| UploadSession[(local file/ CSV)]
+  UploadSession -->|insert rows| FinalizeAPI[POST /api/upload/:id/chunk]
+  FinalizeAPI -->|create table + insert| SQLite[(SQLite prisma/dev.db)]
   FinalizeAPI -->|kick off analyze| AnalyzeAPI[POST /api/datasets/:id/analyze]
   AnalyzeAPI -->|OpenRouter LLM| OpenRouter
-  AnalyzeAPI -->|upsert DatasetContext| Postgres
+  AnalyzeAPI -->|upsert DatasetContext| SQLite
 
   Browser -->|list datasets| DatasetsAPI[GET /api/datasets]
   Browser -->|stream agent| AgentAPI[POST /api/agent]
   AgentAPI -->|LangGraph invoke| Graph[compiled agent]
   Graph -->|bindTools| Tools[5 tools]
-  Tools -->|Prisma + raw SQL| Postgres
+  Tools -->|Prisma + raw SQL| SQLite
   Tools -->|Tavily| Tavily[(web)]
   Graph -->|OpenRouter chat| OpenRouter
   AgentAPI -->|NDJSON events| Browser
 ```
 
-The two halves — **data ingestion** and **AI agent** — share a single
-PostgreSQL database through a single Prisma client (`lib/db.ts`).
+The two halves — **data ingestion** and **AI agent** — share a local SQLite
+database through a single Prisma client (`lib/db.ts`).
 
 ---
 
@@ -119,7 +119,7 @@ PostgreSQL database through a single Prisma client (`lib/db.ts`).
 |---|---|
 | Framework | [Next.js 16.3.3](https://nextjs.org/) (App Router) + React 19 + TypeScript 5 |
 | Styling | Tailwind CSS v4 + a unified design-token system in `app/globals.css` |
-| ORM / DB | [Prisma 7](https://www.prisma.io/) with the [`@prisma/adapter-pg`](https://www.npmjs.com/package/@prisma/adapter-pg) driver, against PostgreSQL |
+| ORM / DB | [Prisma 7](https://www.prisma.io/) with `@prisma/adapter-better-sqlite3`, against local SQLite |
 | AI / Agent | [`langchain`](https://js.langchain.com/) 1.5, [`@langchain/langgraph`](https://langchain-ai.github.io/langgraphjs/) 1.4, [`@langchain/openrouter`](https://www.npmjs.com/package/@langchain/openrouter) 0.4 |
 | Schema validation | [`zod`](https://zod.dev/) 4 (tool input schemas) |
 | CSV parsing | [`papaparse`](https://www.papaparse.com/) 5 |
@@ -186,7 +186,7 @@ razorpay/
 
 ## 7. Getting Started
 
-Requirements: **Node.js 18+**, **PostgreSQL 14+**, an **OpenRouter** API key
+Requirements: **Node.js 18+**, an **OpenRouter** API key
 (for the LLM), and a **Tavily** API key (for `web_search`; the agent falls
 back gracefully if it is missing).
 
@@ -202,17 +202,14 @@ cp sampleenv .env
 npm run dev   # Next will invoke Prisma as part of its build / first request
 ```
 
-Prisma migrations live under `prisma/migrations/`. To create the schema in a
-fresh database, use the standard Prisma 7 workflow against your configured
-`DATABASE_URL`:
+The local database is created at `prisma/dev.db`. To create or update its
+schema after cloning:
 
 ```bash
-npx prisma migrate deploy
+npx prisma db push
 ```
 
-> The Prisma config (`prisma7.config.ts`) injects the `DATABASE_URL` from the
-> environment. A `datasource.url` is intentionally **not** present in
-> `prisma/schema.prisma` — it is supplied at runtime.
+Uploaded CSV files are written to `./file`; both paths are git-ignored.
 
 ---
 
@@ -222,11 +219,9 @@ These are declared in `sampleenv`:
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `DATABASE_URL` | ✅ | PostgreSQL connection string used by both `lib/db.ts` and `prisma7.config.ts` |
 | `OPENROUTER_API_KEY` | ✅ | Used by `POST /api/analyze` and the LangGraph agent |
 | `OPENROUTER_MODEL` | optional | Model name passed to OpenRouter (e.g. `openai/gpt-4o-mini`). Defaults to `openai/gpt-4o-mini` when unset |
 | `TAVILY_API_KEY` | optional | Required for the `web_search` tool only; missing → the tool returns an error but other tools keep working |
-| `UPLOAD_TMP_DIR` | optional | Override the temp directory for chunked uploads (default: `./.uploads`) |
 
 > **Never commit real secrets.** `.env` is git-ignored.
 
@@ -247,7 +242,7 @@ set on dataset and agent routes).
 
 ---
 
-## 10. Using MerchMind
+## 10. Using HelperX
 
 A typical merchant workflow:
 
@@ -336,7 +331,7 @@ where any failure happened.
 
 ## 13. Database
 
-PostgreSQL is used for two things:
+SQLite is used for two things:
 
 1. **Prisma-managed tables** (`prisma/schema.prisma`):
    - `Dataset` — metadata for each uploaded CSV (filename, sanitized table
@@ -347,7 +342,7 @@ PostgreSQL is used for two things:
    - `LogbookEntry` — agent memory (`type`, `title`, `summary`, `evidence`,
      `datasetIds`).
 2. **Dynamic per-dataset tables** — for every uploaded CSV, the server
-   creates a real PostgreSQL table whose columns are inferred from the CSV
+   creates a real SQLite table whose columns are inferred from the CSV
    header (`TEXT | DOUBLE PRECISION | TIMESTAMP`). Rows are inserted in
    batches of 500. The agent queries these via the `query_dataset` tool.
 
@@ -367,8 +362,8 @@ npx prisma migrate  # Standard Prisma migration commands
 
 A few practical things to know:
 
-- **Chunked uploads** write to `./.uploads/<sessionId>/` by default; the
-  directory is cleaned up after `finalize` succeeds or fails.
+- **Chunked uploads** append the CSV to `./file/<datasetId>_<fileName>` while
+  inserting each batch into its local SQLite table.
 - **Streaming agent** writes one JSON object per line; the client in
   `lib/agentClient.ts` parses each line into either a progress event or a
   final `result` / `error` line.
@@ -400,3 +395,5 @@ No license file is currently present in this repository. Unless a license is
 added later, **all rights are reserved by the original author**. If you
 intend to reuse, fork, or distribute this code, please add a `LICENSE` file
 first.
+#   H e l p e r X  
+ 
