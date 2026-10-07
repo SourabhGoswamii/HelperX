@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { SEMANTIC_PROMPT } from "@/lib/prompts";
+import {
+  getRotatedOpenRouterApiKeys,
+  isOpenRouterQuotaError,
+} from "@/lib/openrouter";
 
 type AnalyzeRequest = {
   table_name: string;
@@ -45,14 +49,13 @@ export async function POST(
       );
     }
 
-    const apiKey =
-      process.env.OPENROUTER_API_KEY;
+    const apiKeys = getRotatedOpenRouterApiKeys();
 
-    if (!apiKey) {
+    if (!apiKeys.length) {
       return NextResponse.json(
         {
           error:
-            "OPENROUTER_API_KEY is not configured",
+            "OPENROUTER_API_KEY or OPENROUTER_API_KEYS is not configured",
         },
         {
           status: 500,
@@ -103,68 +106,94 @@ ${sampleData}
       ANALYSIS_TIMEOUT_MS,
     );
 
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
+    let response: Response | undefined;
+    let lastError: unknown;
+    for (const apiKey of apiKeys) {
+      try {
+        response = await fetch(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            method: "POST",
 
-        headers: {
-          "Content-Type":
-            "application/json",
+            headers: {
+              "Content-Type": "application/json",
 
-          Authorization:
-            `Bearer ${apiKey}`,
-        },
-
-        body: JSON.stringify({
-          model:
-            process.env.OPENROUTER_MODEL ||
-            "openai/gpt-4o-mini",
-
-          temperature: 0.5,
-
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt,
+              Authorization: `Bearer ${apiKey}`,
             },
-            {
-              role: "user",
-              content: userPrompt,
-            },
-          ],
-          response_format: {
-            type: "json_object",
+
+            body: JSON.stringify({
+              model:
+                process.env.OPENROUTER_MODEL ||
+                "openai/gpt-4o-mini",
+
+              temperature: 0.5,
+
+              messages: [
+                {
+                  role: "system",
+                  content: systemPrompt,
+                },
+                {
+                  role: "user",
+                  content: userPrompt,
+                },
+              ],
+              response_format: {
+                type: "json_object",
+              },
+            }),
+            signal: abort.signal,
           },
-        }),
-        signal: abort.signal,
-      },
-    );
+        );
+        if (response.ok) break;
+        const body = await response.clone().text();
+        if (!isOpenRouterQuotaError(new Error(`${response.status} ${body}`))) {
+          break;
+        }
+      } catch (error) {
+        lastError = error;
+        if (!isOpenRouterQuotaError(error)) throw error;
+      }
+    }
     clearTimeout(timer);
 
-    if (!response.ok) {
-      const errorText =
-        await response.text();
+    if (!response) {
+      throw lastError instanceof Error
+        ? lastError
+        : new Error("OpenRouter request failed");
+    }
+
+    const responseText = await response.text();
+    let result: {
+      error?: { message?: string; code?: number };
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    try {
+      result = JSON.parse(responseText) as typeof result;
+    } catch {
+      result = {};
+    }
+
+    if (!response.ok || result.error) {
+      const providerMessage =
+        result.error?.message ||
+        responseText ||
+        `HTTP ${response.status}`;
 
       console.error(
         "OpenRouter error:",
-        errorText,
+        providerMessage,
       );
 
       return NextResponse.json(
         {
-          error:
-            "AI analysis failed",
-          details: errorText,
+          error: `AI analysis failed: ${providerMessage}`,
         },
         {
-          status: 500,
+          status: response.ok ? 502 : response.status,
         },
       );
     }
-
-    const result =
-      await response.json();
 
     const content =
       result?.choices?.[0]?.message
@@ -172,7 +201,7 @@ ${sampleData}
 
     if (!content) {
       throw new Error(
-        "AI returned empty analysis",
+        "AI returned no analysis content",
       );
     }
 

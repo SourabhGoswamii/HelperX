@@ -60,7 +60,7 @@ export const getLogbook = tool(
   {
     name: "get_logbook",
     description:
-      "Retrieve historical MerchMind business analysis, insights, decisions, and research from the merchant logbook.",
+      "Retrieve historical HelperX business analysis, insights, decisions, and research from the merchant logbook.",
     schema,
   },
 );

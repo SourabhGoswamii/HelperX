@@ -1,12 +1,12 @@
-# Project Context — MerchMind (razorpay)
+# Project Context — HelperX (razorpay)
 
 > Generated on 2026-09-02. Snapshot of the project structure, stack, data flow, and key files at this point in time.
 
 ## 1. Overview
 
-**MerchMind** is an "AI merchant intelligence" web app. Merchants upload CSV exports (orders, customers, products, transactions, returns), the app ingests each file into a dynamically created PostgreSQL table, uses an LLM (via OpenRouter) to build a *semantic understanding* of each dataset (what each row/column means), and then an agent (LangChain tools, to be wired into LangGraph) answers business questions and records insights in a persistent logbook.
+**HelperX** is an "AI merchant intelligence" web app. Merchants upload CSV exports (orders, customers, products, transactions, returns), the app ingests each file into a dynamically created SQLite table and saves the CSV under `file/`, uses an LLM (via OpenRouter) to build a *semantic understanding* of each dataset, and then a LangGraph agent answers business questions and records insights in a persistent logbook.
 
-The repo sits in a folder named `razorpay` but the product is branded **MerchMind**.
+The repo sits in a folder named `razorpay` but the product is branded **HelperX**.
 
 ## 2. Tech Stack
 
@@ -14,7 +14,7 @@ The repo sits in a folder named `razorpay` but the product is branded **MerchMin
 |---|---|
 | Framework | Next.js 16.3.3 (App Router) + React 19.2.8 + TypeScript 5 |
 | Styling | Tailwind CSS v4 (`@tailwindcss/postcss`), plus heavy inline `<style>` blocks and inline styles per page |
-| ORM / DB | Prisma ORM 7 (`@prisma/client` 7.10, `prisma` 7.10) with Pg driver adapter (`@prisma/adapter-pg`) and `pg` against PostgreSQL; raw SQL used for dynamic table creation/query |
+| ORM / DB | Prisma ORM 7 (`@prisma/client` 7.10, `prisma` 7.10) with `@prisma/adapter-better-sqlite3` against local SQLite; raw SQL used for dynamic table creation/query |
 | AI / Agents | `langchain` 1.5, `@langchain/langgraph` 1.4, `@langchain/openrouter` 0.4 (LLM calls), `zod` 4 (tool schemas), direct OpenRouter HTTP calls for the semantic analysis pass |
 | Data parsing | `papaparse` 5.7 (CSV) |
 | Linting | ESLint 9 + `eslint-config-next` |
@@ -41,7 +41,7 @@ razorpay/
 │   ├── dashboard/page.tsx             # Workspace: dataset list, semantic view, agent chat box, intelligence sidebar
 │   ├── upload/page.tsx                # CSV upload flow (queue, per-file confirm, worker pool)
 │   ├── page.tsx                       # Marketing landing page (hero, data workspace mock, workflow)
-│   ├── layout.tsx                     # Root layout (Geist fonts, metadata "MERCH-MIND")
+│   ├── layout.tsx                     # Root layout (Geist fonts, metadata "HelperX")
 │   ├── globals.css                    # Tailwind entry
 │   └── favicon.ico
 ├── lib/
@@ -62,10 +62,10 @@ razorpay/
 ├── public/                            # SVG assets (next/vercel/globe/file/window)
 ├── .agents/skills/, .claude/skills/, .windsurf/skills/   # ~6 duplicated Prisma skill packages for agent runners
 ├── .env                               # env vars (gitignored); template in sampleenv
-├── sampleenv                          # Env template: OPENROUTER_API_KEY, OPENROUTER_MODEL, DATABASE_URL
+├── sampleenv                          # Env template: OpenRouter and optional Tavily settings
 ├── AGENTS.md                          # Next.js agent rules (managed by `next dev`)
 ├── CLAUDE.md                          # Just imports @AGENTS.md
-├── README.md                          # Default create-next-app README (+ stray "MERCH-MIND" footer line)
+├── README.md                          # Default create-next-app README (+ stray "HelperX" footer line)
 ├── prisma7.config.ts                  # Prisma 7 config (schema, migrations path, datasource url)
 ├── next.config.ts                     # Empty/default (no options)
 ├── postcss.config.mjs / eslint.config.mjs / tsconfig.json
@@ -77,7 +77,7 @@ razorpay/
 ## 4. Database Schema (`prisma/schema.prisma`)
 
 - Generator: `prisma-client`, output `../app/generated/prisma`.
-- Datasource: `provider = "postgresql"` (url injected at runtime via `prisma7.config.ts` and `lib/db.ts`).
+- Datasource: `provider = "sqlite"` using the local `prisma/dev.db` file.
 
 ```prisma
 enum DatasetStatus { UPLOADING  ANALYZING  READY  FAILED }   // lifecycle of a dataset
@@ -121,7 +121,7 @@ model LogbookEntry {
 }
 ```
 
-Note: each uploaded CSV also materializes a real PostgreSQL table named after the Dataset's `tableName`, with columns created from the parsed CSV (`"name" type`).
+Note: each uploaded CSV also materializes a real SQLite table named after the Dataset's `tableName`, with columns created from the parsed CSV (`"name" type`), and is saved under `file/`.
 
 ## 5. Data Flow (Upload → Analysis → Ask)
 
@@ -159,9 +159,9 @@ From `sampleenv` (user provides values in `.env`):
 
 | Variable | Purpose |
 |---|---|
-| `OPENROUTER_API_KEY` | Required for AI analysis + agent LLM |
+| `OPENROUTER_API_KEY` | Primary OpenRouter key for AI analysis + agent LLM |
+| `OPENROUTER_API_KEYS` | Optional comma- or newline-separated key pool; keys rotate on quota/rate-limit failures |
 | `OPENROUTER_MODEL` | Model name (e.g. `openai/gpt-4o-mini`) — defaulted in `api/analyze` |
-| `DATABASE_URL` | PostgreSQL connection string (required by `lib/db.ts` & `prisma7.config.ts`) |
 
 Additional secret expected by `web-search.ts` (not in sampleenv): `TAVILY_API_KEY`.
 

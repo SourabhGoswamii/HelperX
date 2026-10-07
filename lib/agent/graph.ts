@@ -6,6 +6,7 @@ import {
   getDatasetContext,
   getLogbook,
   queryDataset,
+  updateLogbook,
   webSearch,
   writeLogbook,
 } from "@/lib/tools/index";
@@ -24,6 +25,7 @@ const tools = [
   withAudit(webSearch),
   withAudit(getLogbook),
   withAudit(writeLogbook),
+  withAudit(updateLogbook),
 ];
 
 const toolNode = new ToolNode(tools);
@@ -53,7 +55,7 @@ const graph = new StateGraph(AgentModeSchema)
 
 export const compiledAgent = graph
   .compile()
-  .withConfig({ runName: "merchmind-agent" });
+  .withConfig({ runName: "helperx-agent" });
 
 export { MAX_TOOL_CALLS };
 export type { AgentState } from "./state";

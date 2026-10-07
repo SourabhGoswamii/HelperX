@@ -1,6 +1,15 @@
 OPENROUTER_API_KEY=
+# Optional comma- or newline-separated pool. Keys are tried in rotation when
+# a key is rate-limited, out of credits, or over quota.
+OPENROUTER_API_KEYS=
 OPENROUTER_MODEL=
-DATABASE_URL=
+# Optional fallback used when the selected provider is overloaded.
+OPENROUTER_FALLBACK_MODEL=openai/gpt-4o-mini
+TAVILY_API_KEY=
+
+# No database URL is needed. HelperX now uses a local SQLite database at
+# prisma/dev.db, created automatically by `npx prisma db push`. Uploaded
+# CSV files are saved to the local ./file folder.
 
 # System prompts. Each variable is read by lib/prompts.ts at request
 # time; if unset, a hard-coded fallback is used. Leave blank to keep the

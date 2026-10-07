@@ -1,9 +1,11 @@
 import { NextRequest } from "next/server";
-import { HumanMessage } from "@langchain/core/messages";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 import { compiledAgent } from "@/lib/agent/graph";
 import { setAgentLogSink } from "@/lib/agent/auditSink";
 import { extractText } from "@/lib/agent/extractText";
+import { prisma } from "@/lib/db";
+import { getOpenRouterApiKeys } from "@/lib/openrouter";
 import { INITIAL_ANALYSIS_PROMPT } from "@/lib/prompts";
 import type { AgentState } from "@/lib/agent/state";
 
@@ -37,9 +39,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!process.env.OPENROUTER_API_KEY) {
+  if (!getOpenRouterApiKeys().length) {
     return new Response(
-      JSON.stringify({ error: "OPENROUTER_API_KEY is not configured" }),
+      JSON.stringify({
+        error: "OPENROUTER_API_KEY or OPENROUTER_API_KEYS is not configured",
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
@@ -79,10 +83,34 @@ export async function POST(request: NextRequest) {
       }, 50);
 
       try {
+        const datasets = await prisma.dataset.findMany({
+          where: { status: "READY" },
+          include: { context: true },
+          orderBy: { createdAt: "desc" },
+        });
+        const allDatasetContext = JSON.stringify(
+          datasets.map((dataset) => ({
+            id: dataset.id,
+            fileName: dataset.fileName,
+            tableName: dataset.tableName,
+            rowCount: dataset.rowCount,
+            columns: dataset.columns,
+            context: dataset.context?.context ?? null,
+          })),
+        );
+
         const finalState = await compiledAgent.invoke(
           {
             mode,
-            messages: [new HumanMessage(userText)],
+            messages: [
+              new SystemMessage(
+                `All READY uploaded datasets are in scope for this request. Do not
+                limit your analysis to a selected dashboard item. Use this complete
+                dataset catalog to choose and query any relevant tables:
+                ${allDatasetContext}`,
+              ),
+              new HumanMessage(userText),
+            ],
             insights: [],
             toolCallCount: 0,
           } as Partial<AgentState>,

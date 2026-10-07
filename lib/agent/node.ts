@@ -7,6 +7,7 @@ import {
   getDatasetContext,
   getLogbook,
   queryDataset,
+  updateLogbook,
   webSearch,
   writeLogbook,
 } from "@/lib/tools/index";
@@ -14,6 +15,10 @@ import {
 import { extractText } from "./extractText";
 
 import { AGENT_SYSTEM_PROMPT as SYSTEM_PROMPT } from "@/lib/prompts";
+import {
+  getRotatedOpenRouterApiKeys,
+  isOpenRouterQuotaError,
+} from "@/lib/openrouter";
 
 import type { AgentState, Insight } from "./state";
 
@@ -25,15 +30,14 @@ const tools = [
   webSearch,
   getLogbook,
   writeLogbook,
+  updateLogbook,
 ];
 
-function createModel(): ChatOpenRouter {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is not configured");
-  }
+function createModel(apiKey: string, modelOverride?: string): ChatOpenRouter {
   const model =
-    process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
+    modelOverride ||
+    process.env.OPENROUTER_MODEL ||
+    "openai/gpt-4o-mini";
   return new ChatOpenRouter({
     apiKey,
     model,
@@ -41,19 +45,113 @@ function createModel(): ChatOpenRouter {
   });
 }
 
-let _llm: ChatOpenRouter | null = null;
-let _llmWithTools: Runnable | null = null;
-
-function getLlm(): ChatOpenRouter {
-  if (!_llm) _llm = createModel();
-  return _llm;
+function getLlm(apiKey: string): ChatOpenRouter {
+  return createModel(apiKey);
 }
 
-function getLlmWithTools(): Runnable {
-  if (!_llmWithTools) {
-    _llmWithTools = getLlm().bindTools(tools);
+function getLlmWithTools(apiKey: string): Runnable {
+  return getLlm(apiKey).bindTools(tools);
+}
+
+function getFallbackLlm(apiKey: string): ChatOpenRouter {
+  const fallbackModel =
+    process.env.OPENROUTER_FALLBACK_MODEL || "openai/gpt-4o-mini";
+  return createModel(apiKey, fallbackModel);
+}
+
+function getFallbackLlmWithTools(apiKey: string): Runnable {
+  return getFallbackLlm(apiKey).bindTools(tools);
+}
+
+function isProviderFailure(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes("reading '0'") ||
+    message.includes('reading "0"') ||
+    message.includes("provider_overloaded") ||
+    message.includes("temporarily overloaded") ||
+    message.includes("status code 503")
+  );
+}
+
+async function invokeAgentModel(
+  messages: BaseMessage[],
+): Promise<AIMessage> {
+  const keys = getRotatedOpenRouterApiKeys();
+  if (!keys.length) throw new Error("OPENROUTER_API_KEY is not configured");
+
+  let lastError: unknown;
+  for (const apiKey of keys) {
+    try {
+      return (await getLlmWithTools(apiKey).invoke(messages)) as AIMessage;
+    } catch (error) {
+      lastError = error;
+      if (!isOpenRouterQuotaError(error)) {
+        if (!isProviderFailure(error)) throw error;
+        try {
+          return (await getFallbackLlmWithTools(apiKey).invoke(messages)) as AIMessage;
+        } catch (fallbackError) {
+          lastError = fallbackError;
+          if (!isOpenRouterQuotaError(fallbackError)) throw fallbackError;
+        }
+      }
+    }
   }
-  return _llmWithTools;
+  throw lastError instanceof Error ? lastError : new Error("OpenRouter request failed");
+}
+
+async function invokeChatModel(messages: BaseMessage[]): Promise<AIMessage> {
+  const keys = getRotatedOpenRouterApiKeys();
+  if (!keys.length) throw new Error("OPENROUTER_API_KEY is not configured");
+
+  let lastError: unknown;
+  for (const apiKey of keys) {
+    try {
+      return await getLlm(apiKey).invoke(messages);
+    } catch (error) {
+      lastError = error;
+      if (!isOpenRouterQuotaError(error)) {
+        if (!isProviderFailure(error)) throw error;
+        try {
+          return await getFallbackLlm(apiKey).invoke(messages);
+        } catch (fallbackError) {
+          lastError = fallbackError;
+          if (!isOpenRouterQuotaError(fallbackError)) throw fallbackError;
+        }
+      }
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("OpenRouter request failed");
+}
+
+async function invokeStructuredInsights(
+  messages: BaseMessage[],
+): Promise<{ insights?: z.infer<typeof InsightsSchema>["insights"] }> {
+  const keys = getRotatedOpenRouterApiKeys();
+  if (!keys.length) throw new Error("OPENROUTER_API_KEY is not configured");
+
+  let lastError: unknown;
+  for (const apiKey of keys) {
+    try {
+      return await getLlm(apiKey)
+        .withStructuredOutput(InsightsSchema)
+        .invoke(messages);
+    } catch (error) {
+      lastError = error;
+      if (!isOpenRouterQuotaError(error)) {
+        if (!isProviderFailure(error)) throw error;
+        try {
+          return await getFallbackLlm(apiKey)
+            .withStructuredOutput(InsightsSchema)
+            .invoke(messages);
+        } catch (fallbackError) {
+          lastError = fallbackError;
+          if (!isOpenRouterQuotaError(fallbackError)) throw fallbackError;
+        }
+      }
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("OpenRouter request failed");
 }
 
 export async function agentNode(
@@ -61,7 +159,7 @@ export async function agentNode(
 ): Promise<Partial<AgentState>> {
   const system = new SystemMessage(SYSTEM_PROMPT);
   const messages: BaseMessage[] = [system, ...state.messages];
-  const response = await getLlmWithTools().invoke(messages);
+  const response = await invokeAgentModel(messages);
   const toolCalls = (response as AIMessage).tool_calls?.length ?? 0;
   return {
     messages: [response],
@@ -101,8 +199,9 @@ export async function formatInsightsNode(
       `You have reached the maximum number of tool calls. Based on the
 conversation and tool results so far, write the final business answer the
 merchant should see. Follow the same answer style as the system prompt:
-Finding / Evidence / Why it matters / Recommended next step. Do not call
-any more tools. Do not include JSON, markdown, or code fences.`,
+## Finding / ## Evidence / ## Why it matters / ## Recommended next step.
+Use exactly those four markdown headings, in that order. Do not call any more
+tools. Do not include JSON or code fences.`,
     );
     const messages: BaseMessage[] = [
       new SystemMessage(SYSTEM_PROMPT),
@@ -110,7 +209,7 @@ any more tools. Do not include JSON, markdown, or code fences.`,
       synth,
     ];
     try {
-      const finalAi = await getLlm().invoke(messages);
+      const finalAi = await invokeChatModel(messages);
       newMessages = [finalAi];
       last = finalAi as AIMessage;
     } catch {
@@ -143,7 +242,7 @@ any more tools. Do not include JSON, markdown, or code fences.`,
 
   const extractionPrompt = [
     new SystemMessage(
-      `You extract structured business insights from a MerchMind agent
+      `You extract structured business insights from a HelperX agent
 conversation. The merchant only sees the assistant's final text plus your
 insights array. Keep insights actionable, evidence-based, and non-overlapping.
 Return valid JSON matching the provided schema. If the final message is a
@@ -153,9 +252,8 @@ clarifying question or contains no insight, return an empty insights array.`,
     new SystemMessage(`Final assistant message:\n${lastContent}`),
   ];
 
-  const structured = getLlm().withStructuredOutput(InsightsSchema);
   try {
-    const parsed = await structured.invoke(extractionPrompt);
+    const parsed = await invokeStructuredInsights(extractionPrompt);
     const insights = Array.isArray(parsed?.insights)
       ? (parsed.insights as Insight[])
       : [];

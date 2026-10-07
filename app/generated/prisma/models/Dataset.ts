@@ -39,7 +39,7 @@ export type DatasetMinAggregateOutputType = {
   fileName: string | null
   tableName: string | null
   rowCount: number | null
-  status: $Enums.DatasetStatus | null
+  status: string | null
   error: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -50,7 +50,7 @@ export type DatasetMaxAggregateOutputType = {
   fileName: string | null
   tableName: string | null
   rowCount: number | null
-  status: $Enums.DatasetStatus | null
+  status: string | null
   error: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -205,7 +205,7 @@ export type DatasetGroupByOutputType = {
   tableName: string
   rowCount: number
   columns: runtime.JsonValue
-  status: $Enums.DatasetStatus
+  status: string
   error: string | null
   createdAt: Date
   updatedAt: Date
@@ -235,12 +235,12 @@ export type DatasetWhereInput = {
   AND?: Prisma.DatasetWhereInput | Prisma.DatasetWhereInput[]
   OR?: Prisma.DatasetWhereInput[]
   NOT?: Prisma.DatasetWhereInput | Prisma.DatasetWhereInput[]
-  id?: Prisma.UuidFilter<"Dataset"> | string
+  id?: Prisma.StringFilter<"Dataset"> | string
   fileName?: Prisma.StringFilter<"Dataset"> | string
   tableName?: Prisma.StringFilter<"Dataset"> | string
   rowCount?: Prisma.IntFilter<"Dataset"> | number
   columns?: Prisma.JsonFilter<"Dataset">
-  status?: Prisma.EnumDatasetStatusFilter<"Dataset"> | $Enums.DatasetStatus
+  status?: Prisma.StringFilter<"Dataset"> | string
   error?: Prisma.StringNullableFilter<"Dataset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Dataset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Dataset"> | Date | string
@@ -269,7 +269,7 @@ export type DatasetWhereUniqueInput = Prisma.AtLeast<{
   fileName?: Prisma.StringFilter<"Dataset"> | string
   rowCount?: Prisma.IntFilter<"Dataset"> | number
   columns?: Prisma.JsonFilter<"Dataset">
-  status?: Prisma.EnumDatasetStatusFilter<"Dataset"> | $Enums.DatasetStatus
+  status?: Prisma.StringFilter<"Dataset"> | string
   error?: Prisma.StringNullableFilter<"Dataset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Dataset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Dataset"> | Date | string
@@ -297,12 +297,12 @@ export type DatasetScalarWhereWithAggregatesInput = {
   AND?: Prisma.DatasetScalarWhereWithAggregatesInput | Prisma.DatasetScalarWhereWithAggregatesInput[]
   OR?: Prisma.DatasetScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DatasetScalarWhereWithAggregatesInput | Prisma.DatasetScalarWhereWithAggregatesInput[]
-  id?: Prisma.UuidWithAggregatesFilter<"Dataset"> | string
+  id?: Prisma.StringWithAggregatesFilter<"Dataset"> | string
   fileName?: Prisma.StringWithAggregatesFilter<"Dataset"> | string
   tableName?: Prisma.StringWithAggregatesFilter<"Dataset"> | string
   rowCount?: Prisma.IntWithAggregatesFilter<"Dataset"> | number
   columns?: Prisma.JsonWithAggregatesFilter<"Dataset">
-  status?: Prisma.EnumDatasetStatusWithAggregatesFilter<"Dataset"> | $Enums.DatasetStatus
+  status?: Prisma.StringWithAggregatesFilter<"Dataset"> | string
   error?: Prisma.StringNullableWithAggregatesFilter<"Dataset"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Dataset"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Dataset"> | Date | string
@@ -314,7 +314,7 @@ export type DatasetCreateInput = {
   tableName: string
   rowCount?: number
   columns: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: $Enums.DatasetStatus
+  status?: string
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -327,7 +327,7 @@ export type DatasetUncheckedCreateInput = {
   tableName: string
   rowCount?: number
   columns: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: $Enums.DatasetStatus
+  status?: string
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -340,7 +340,7 @@ export type DatasetUpdateInput = {
   tableName?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   columns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: Prisma.EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -353,7 +353,7 @@ export type DatasetUncheckedUpdateInput = {
   tableName?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   columns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: Prisma.EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -366,7 +366,7 @@ export type DatasetCreateManyInput = {
   tableName: string
   rowCount?: number
   columns: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: $Enums.DatasetStatus
+  status?: string
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -378,7 +378,7 @@ export type DatasetUpdateManyMutationInput = {
   tableName?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   columns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: Prisma.EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,7 +390,7 @@ export type DatasetUncheckedUpdateManyInput = {
   tableName?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   columns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: Prisma.EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,10 +455,6 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type EnumDatasetStatusFieldUpdateOperationsInput = {
-  set?: $Enums.DatasetStatus
-}
-
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
@@ -487,7 +483,7 @@ export type DatasetCreateWithoutContextInput = {
   tableName: string
   rowCount?: number
   columns: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: $Enums.DatasetStatus
+  status?: string
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -499,7 +495,7 @@ export type DatasetUncheckedCreateWithoutContextInput = {
   tableName: string
   rowCount?: number
   columns: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: $Enums.DatasetStatus
+  status?: string
   error?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -527,7 +523,7 @@ export type DatasetUpdateWithoutContextInput = {
   tableName?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   columns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: Prisma.EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -539,7 +535,7 @@ export type DatasetUncheckedUpdateWithoutContextInput = {
   tableName?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
   columns?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  status?: Prisma.EnumDatasetStatusFieldUpdateOperationsInput | $Enums.DatasetStatus
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -614,7 +610,7 @@ export type $DatasetPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     tableName: string
     rowCount: number
     columns: runtime.JsonValue
-    status: $Enums.DatasetStatus
+    status: string
     error: string | null
     createdAt: Date
     updatedAt: Date
@@ -1047,7 +1043,7 @@ export interface DatasetFieldRefs {
   readonly tableName: Prisma.FieldRef<"Dataset", 'String'>
   readonly rowCount: Prisma.FieldRef<"Dataset", 'Int'>
   readonly columns: Prisma.FieldRef<"Dataset", 'Json'>
-  readonly status: Prisma.FieldRef<"Dataset", 'DatasetStatus'>
+  readonly status: Prisma.FieldRef<"Dataset", 'String'>
   readonly error: Prisma.FieldRef<"Dataset", 'String'>
   readonly createdAt: Prisma.FieldRef<"Dataset", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Dataset", 'DateTime'>
@@ -1285,7 +1281,6 @@ export type DatasetCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data used to create many Datasets.
    */
   data: Prisma.DatasetCreateManyInput | Prisma.DatasetCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1304,7 +1299,6 @@ export type DatasetCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many Datasets.
    */
   data: Prisma.DatasetCreateManyInput | Prisma.DatasetCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**

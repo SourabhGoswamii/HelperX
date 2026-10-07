@@ -1,3 +1,5 @@
+import { promises as fs } from "node:fs";
+
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
@@ -9,6 +11,8 @@ import {
   inferColumns,
   insertBatch,
   markDatasetFailed,
+  saveUploadedChunk,
+  uploadedFilePath,
 } from "./_lib/session";
 
 export const dynamic = "force-dynamic";
@@ -102,6 +106,13 @@ export async function POST(request: NextRequest) {
   try {
     await createDatasetTable(tableName, columns);
     await insertBatch(tableName, columns, allRows);
+    await saveUploadedChunk({
+      datasetId,
+      fileName,
+      headers: body.headers,
+      rows: allRows,
+      first: true,
+    });
     if (body.complete) {
       await finalizeDataset(datasetId, allRows.length);
     } else {
@@ -115,6 +126,7 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : "Database upload failed";
     await markDatasetFailed(datasetId, message).catch(() => {});
     await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "${tableName}"`).catch(() => {});
+    await fs.unlink(uploadedFilePath(datasetId, fileName)).catch(() => {});
     return NextResponse.json({ error: message }, { status: 500 });
   }
 

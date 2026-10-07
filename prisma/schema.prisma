@@ -4,16 +4,16 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 model Dataset {
-  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id        String          @id @default(uuid())
   fileName  String          @map("file_name")
   tableName String          @unique @map("table_name")
   rowCount  Int             @default(0) @map("row_count")
   columns   Json
-  status    DatasetStatus   @default(UPLOADING)
+  status    String          @default("UPLOADING")
   error     String?
   createdAt DateTime        @default(now()) @map("created_at")
   updatedAt DateTime        @default(now()) @updatedAt @map("updated_at")
@@ -23,8 +23,8 @@ model Dataset {
 }
 
 model DatasetContext {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  datasetId String   @unique @map("dataset_id") @db.Uuid
+  id        String   @id @default(uuid())
+  datasetId String   @unique @map("dataset_id")
   context   Json
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
@@ -34,30 +34,16 @@ model DatasetContext {
 }
 
 model LogbookEntry {
-  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type       LogbookEntryType
+  id         String   @id @default(uuid())
+  type       String
   title      String
   summary    String
   evidence   Json?
   datasetIds Json?
-  createdAt  DateTime         @default(now()) @map("created_at")
-  updatedAt  DateTime         @default(now()) @updatedAt @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@index([createdAt])
   @@index([type])
   @@map("logbook_entries")
-}
-
-enum DatasetStatus {
-  UPLOADING
-  ANALYZING
-  READY
-  FAILED
-}
-
-enum LogbookEntryType {
-  ANALYSIS
-  INSIGHT
-  DECISION
-  RESEARCH
 }

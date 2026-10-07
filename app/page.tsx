@@ -44,7 +44,7 @@ const PHRASES = [
   'measuring margin erosion…'
 ];
 
-export default function MerchMind() {
+export default function HelperX() {
   const router = useRouter();
 
   const [scrolled, setScrolled] = useState(false);
@@ -479,13 +479,13 @@ export default function MerchMind() {
       {/* ================= NAV ================= */}
       <header className={`nav ${scrolled ? 'scrolled' : ''}`} id="nav">
         <div className="nav-inner">
-          <a className="brand" href="#top" aria-label="MerchMind home">
+          <a className="brand" href="#top" aria-label="HelperX home">
             <svg className="brand-mark" viewBox="0 0 26 26" aria-hidden="true">
               <circle cx="13" cy="13" r="11.2" fill="none" stroke="currentColor" strokeWidth="1.4" opacity=".5"/>
               <path d="M13 6.6 7.4 16.2M13 6.6l5.6 9.6M7.4 16.2h11.2" stroke="currentColor" strokeWidth="1.1" fill="none" opacity=".8"/>
               <circle cx="13" cy="6.6" r="2.1" fill="currentColor"/><circle cx="7.4" cy="16.2" r="2.1" fill="currentColor"/><circle cx="18.6" cy="16.2" r="2.1" fill="currentColor"/>
             </svg>
-            <span className="brand-name">MerchMind</span>
+            <span className="brand-name">HelperX</span>
           </a>
           <nav className="nav-links" aria-label="Main">
             <a href="#data">Data</a>
@@ -502,7 +502,7 @@ export default function MerchMind() {
           <div className="hero-copy">
             <p className="eyebrow"><span className="live-dot" aria-hidden="true"></span>AI merchant intelligence</p>
             <h1 className="hero-title">Your AI Merchant<br /><em>Growth</em> Strategist</h1>
-            <p className="hero-sub">Turn your business data into clear insights and actionable growth opportunities. Upload the CSVs you already export — orders, customers, products — and let MerchMind understand what they mean.</p>
+            <p className="hero-sub">Turn your business data into clear insights and actionable growth opportunities. Upload the CSVs you already export — orders, customers, products — and let HelperX understand what they mean.</p>
             <div className="hero-actions">
               <button className="btn btn-primary" onClick={() => router.push("/upload")}>Get Started
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2.5 8h11m0 0L9 3.5M13.5 8 9 12.5"/></svg>
@@ -620,7 +620,7 @@ export default function MerchMind() {
           <div className="section-head" data-reveal>
             <p className="kicker">01 · Data understanding</p>
             <h2>It starts by <em>understanding</em> your data.</h2>
-            <p className="lede">MerchMind works with the business datasets you already have. Bring the files you export today — no cleaning, no schema setup, no data team. The system profiles each dataset on arrival, infers what every column means, and links them into one connected picture of your business.</p>
+            <p className="lede">HelperX works with the business datasets you already have. Bring the files you export today — no cleaning, no schema setup, no data team. The system profiles each dataset on arrival, infers what every column means, and links them into one connected picture of your business.</p>
           </div>
 
           <div className="workspace" id="workspace" ref={workspaceRef} data-reveal style={{ transitionDelay: '.15s' }}>
@@ -688,7 +688,7 @@ export default function MerchMind() {
           <div className="section-head" data-reveal>
             <p className="kicker">02 · Intelligence</p>
             <h2>Not another dashboard.</h2>
-            <p className="lede">Dashboards display your data — MerchMind understands it. It learns how your datasets relate, where the patterns hide, and which of them are worth money. Then it tells you, like a good analyst would.</p>
+            <p className="lede">Dashboards display your data — HelperX understands it. It learns how your datasets relate, where the patterns hide, and which of them are worth money. Then it tells you, like a good analyst would.</p>
           </div>
 
           <div className="intel-grid">
@@ -856,7 +856,7 @@ export default function MerchMind() {
             <article className="step" data-reveal>
               <div className="step-num"><span>02</span></div>
               <div className="step-content">
-                <h3>Let MerchMind understand it</h3>
+                <h3>Let HelperX understand it</h3>
                 <p>The system profiles each dataset on arrival: what the columns mean, how they join, what they say about your business. Minutes, not weeks — and no data team required.</p>
               </div>
               <div className="step-visual">
@@ -915,15 +915,15 @@ export default function MerchMind() {
 
           <footer className="footer">
             <div className="footer-inner">
-              <a className="brand" href="#top" aria-label="MerchMind home">
+              <a className="brand" href="#top" aria-label="HelperX home">
                 <svg className="brand-mark" viewBox="0 0 26 26" aria-hidden="true">
                   <circle cx="13" cy="13" r="11.2" fill="none" stroke="currentColor" strokeWidth="1.4" opacity=".5"/>
                   <path d="M13 6.6 7.4 16.2M13 6.6l5.6 9.6M7.4 16.2h11.2" stroke="currentColor" strokeWidth="1.1" fill="none" opacity=".8"/>
                   <circle cx="13" cy="6.6" r="2.1" fill="currentColor"/><circle cx="7.4" cy="16.2" r="2.1" fill="currentColor"/><circle cx="18.6" cy="16.2" r="2.1" fill="currentColor"/>
                 </svg>
-                <span className="brand-name">MerchMind</span>
+                <span className="brand-name">HelperX</span>
               </a>
-              <p className="footer-right">© {new Date().getFullYear()} MerchMind — AI merchant intelligence</p>
+              <p className="footer-right">© {new Date().getFullYear()} HelperX — AI merchant intelligence</p>
             </div>
           </footer>
         </div>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { DatasetStatus } from "@/app/generated/prisma/client";
 import type { InputJsonValue } from "@/app/generated/prisma/internal/prismaNamespace";
+import { DatasetStatus } from "@/app/api/upload/_lib/session";
 import { prisma } from "@/lib/db";
 
 type Column = { original: string; name: string; type: string };
@@ -44,13 +44,15 @@ export async function POST(
   }
 
   if (dataset.status === DatasetStatus.FAILED) {
-    return NextResponse.json(
-      {
-        error: "Dataset is in a failed state and cannot be analyzed",
-        status: dataset.status,
-      },
-      { status: 409 },
-    );
+    if (!force) {
+      return NextResponse.json(
+        {
+          error: "Dataset analysis previously failed; retry with force=true",
+          status: dataset.status,
+        },
+        { status: 409 },
+      );
+    }
   }
 
   if (dataset.status === DatasetStatus.ANALYZING) {
@@ -63,7 +65,10 @@ export async function POST(
     );
   }
 
-  if (dataset.status !== DatasetStatus.READY) {
+  if (
+    dataset.status !== DatasetStatus.READY &&
+    !(dataset.status === DatasetStatus.FAILED && force)
+  ) {
     return NextResponse.json(
       {
         error: `Cannot analyze dataset in status ${String(dataset.status)}`,

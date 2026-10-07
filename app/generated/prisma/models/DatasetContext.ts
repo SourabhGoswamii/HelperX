@@ -173,8 +173,8 @@ export type DatasetContextWhereInput = {
   AND?: Prisma.DatasetContextWhereInput | Prisma.DatasetContextWhereInput[]
   OR?: Prisma.DatasetContextWhereInput[]
   NOT?: Prisma.DatasetContextWhereInput | Prisma.DatasetContextWhereInput[]
-  id?: Prisma.UuidFilter<"DatasetContext"> | string
-  datasetId?: Prisma.UuidFilter<"DatasetContext"> | string
+  id?: Prisma.StringFilter<"DatasetContext"> | string
+  datasetId?: Prisma.StringFilter<"DatasetContext"> | string
   context?: Prisma.JsonFilter<"DatasetContext">
   createdAt?: Prisma.DateTimeFilter<"DatasetContext"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DatasetContext"> | Date | string
@@ -217,8 +217,8 @@ export type DatasetContextScalarWhereWithAggregatesInput = {
   AND?: Prisma.DatasetContextScalarWhereWithAggregatesInput | Prisma.DatasetContextScalarWhereWithAggregatesInput[]
   OR?: Prisma.DatasetContextScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DatasetContextScalarWhereWithAggregatesInput | Prisma.DatasetContextScalarWhereWithAggregatesInput[]
-  id?: Prisma.UuidWithAggregatesFilter<"DatasetContext"> | string
-  datasetId?: Prisma.UuidWithAggregatesFilter<"DatasetContext"> | string
+  id?: Prisma.StringWithAggregatesFilter<"DatasetContext"> | string
+  datasetId?: Prisma.StringWithAggregatesFilter<"DatasetContext"> | string
   context?: Prisma.JsonWithAggregatesFilter<"DatasetContext">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DatasetContext"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DatasetContext"> | Date | string
@@ -1104,7 +1104,6 @@ export type DatasetContextCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many DatasetContexts.
    */
   data: Prisma.DatasetContextCreateManyInput | Prisma.DatasetContextCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1123,7 +1122,6 @@ export type DatasetContextCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * The data used to create many DatasetContexts.
    */
   data: Prisma.DatasetContextCreateManyInput | Prisma.DatasetContextCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

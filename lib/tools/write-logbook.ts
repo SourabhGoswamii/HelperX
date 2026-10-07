@@ -37,7 +37,7 @@ export const writeLogbook = tool(
   {
     name: "write_logbook",
     description:
-      "Save an important business analysis, insight, decision, or research finding into the persistent MerchMind logbook.",
+      "Save an important business analysis, insight, decision, or research finding into the persistent HelperX logbook.",
     schema,
   },
 );

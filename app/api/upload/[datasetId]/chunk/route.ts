@@ -1,14 +1,18 @@
+import { promises as fs } from "node:fs";
+
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
 import {
   BATCH_SIZE,
+  DatasetStatus,
   finalizeDataset,
   insertBatch,
   markDatasetFailed,
+  saveUploadedChunk,
+  uploadedFilePath,
   type Column,
 } from "@/app/api/upload/_lib/session";
-import { DatasetStatus } from "@/app/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -93,6 +97,7 @@ export async function POST(
     where: { id: datasetId },
     select: {
       id: true,
+      fileName: true,
       tableName: true,
       status: true,
       columns: true,
@@ -121,6 +126,13 @@ export async function POST(
   try {
     if (rows.length > 0) {
       await insertBatch(dataset.tableName, columns, rows);
+      await saveUploadedChunk({
+        datasetId: dataset.id,
+        fileName: dataset.fileName,
+        headers: columns.map((column) => column.original),
+        rows,
+        first: false,
+      });
     }
     const newRowCount = dataset.rowCount + rows.length;
     if (body.complete) {
@@ -141,6 +153,7 @@ export async function POST(
     const message =
       error instanceof Error ? error.message : "Chunk insert failed";
     await markDatasetFailed(dataset.id, message).catch(() => {});
+    await fs.unlink(uploadedFilePath(dataset.id, dataset.fileName)).catch(() => {});
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

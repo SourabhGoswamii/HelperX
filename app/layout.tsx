@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MERCH-MIND",
+  title: "HelperX",
   description: "AI merchant intelligence for your business",
 };
 

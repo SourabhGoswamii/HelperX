@@ -14,6 +14,14 @@ const OPS = [
   "ILIKE",
 ] as const;
 
+/*
+ * SQLite has no ILIKE operator; its LIKE is already case-insensitive for
+ * ASCII, so ILIKE is mapped onto LIKE instead of passed through.
+ */
+function sqlOp(op: (typeof OPS)[number]): string {
+  return op === "ILIKE" ? "LIKE" : op;
+}
+
 const filterSchema = z.object({
   column: z
     .string()
@@ -88,7 +96,7 @@ export const queryDataset = tool(
           );
         }
         params.push(f.value);
-        where.push(`${quoteIdent(f.column)} ${f.op} $${params.length}`);
+        where.push(`${quoteIdent(f.column)} ${sqlOp(f.op)} ?`);
       }
     }
 

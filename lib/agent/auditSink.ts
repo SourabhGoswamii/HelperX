@@ -19,7 +19,7 @@ export type AgentAuditEvent = {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __merchmind_agent_log:
+  var __helperx_agent_log:
     | ((event: Omit<AgentAuditEvent, "ts">) => void)
     | undefined;
 }
@@ -28,12 +28,12 @@ export function setAgentLogSink(
   sink: ((event: Omit<AgentAuditEvent, "ts">) => void) | null,
 ) {
   if (sink) {
-    globalThis.__merchmind_agent_log = sink;
+    globalThis.__helperx_agent_log = sink;
   } else {
-    delete globalThis.__merchmind_agent_log;
+    delete globalThis.__helperx_agent_log;
   }
 }
 
 export function logAgentEvent(event: Omit<AgentAuditEvent, "ts">): void {
-  globalThis.__merchmind_agent_log?.(event);
+  globalThis.__helperx_agent_log?.(event);
 }

@@ -26,7 +26,7 @@ export type AggregateLogbookEntry = {
 
 export type LogbookEntryMinAggregateOutputType = {
   id: string | null
-  type: $Enums.LogbookEntryType | null
+  type: string | null
   title: string | null
   summary: string | null
   createdAt: Date | null
@@ -35,7 +35,7 @@ export type LogbookEntryMinAggregateOutputType = {
 
 export type LogbookEntryMaxAggregateOutputType = {
   id: string | null
-  type: $Enums.LogbookEntryType | null
+  type: string | null
   title: string | null
   summary: string | null
   createdAt: Date | null
@@ -159,7 +159,7 @@ export type LogbookEntryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type LogbookEntryGroupByOutputType = {
   id: string
-  type: $Enums.LogbookEntryType
+  type: string
   title: string
   summary: string
   evidence: runtime.JsonValue | null
@@ -190,8 +190,8 @@ export type LogbookEntryWhereInput = {
   AND?: Prisma.LogbookEntryWhereInput | Prisma.LogbookEntryWhereInput[]
   OR?: Prisma.LogbookEntryWhereInput[]
   NOT?: Prisma.LogbookEntryWhereInput | Prisma.LogbookEntryWhereInput[]
-  id?: Prisma.UuidFilter<"LogbookEntry"> | string
-  type?: Prisma.EnumLogbookEntryTypeFilter<"LogbookEntry"> | $Enums.LogbookEntryType
+  id?: Prisma.StringFilter<"LogbookEntry"> | string
+  type?: Prisma.StringFilter<"LogbookEntry"> | string
   title?: Prisma.StringFilter<"LogbookEntry"> | string
   summary?: Prisma.StringFilter<"LogbookEntry"> | string
   evidence?: Prisma.JsonNullableFilter<"LogbookEntry">
@@ -216,7 +216,7 @@ export type LogbookEntryWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.LogbookEntryWhereInput | Prisma.LogbookEntryWhereInput[]
   OR?: Prisma.LogbookEntryWhereInput[]
   NOT?: Prisma.LogbookEntryWhereInput | Prisma.LogbookEntryWhereInput[]
-  type?: Prisma.EnumLogbookEntryTypeFilter<"LogbookEntry"> | $Enums.LogbookEntryType
+  type?: Prisma.StringFilter<"LogbookEntry"> | string
   title?: Prisma.StringFilter<"LogbookEntry"> | string
   summary?: Prisma.StringFilter<"LogbookEntry"> | string
   evidence?: Prisma.JsonNullableFilter<"LogbookEntry">
@@ -243,8 +243,8 @@ export type LogbookEntryScalarWhereWithAggregatesInput = {
   AND?: Prisma.LogbookEntryScalarWhereWithAggregatesInput | Prisma.LogbookEntryScalarWhereWithAggregatesInput[]
   OR?: Prisma.LogbookEntryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.LogbookEntryScalarWhereWithAggregatesInput | Prisma.LogbookEntryScalarWhereWithAggregatesInput[]
-  id?: Prisma.UuidWithAggregatesFilter<"LogbookEntry"> | string
-  type?: Prisma.EnumLogbookEntryTypeWithAggregatesFilter<"LogbookEntry"> | $Enums.LogbookEntryType
+  id?: Prisma.StringWithAggregatesFilter<"LogbookEntry"> | string
+  type?: Prisma.StringWithAggregatesFilter<"LogbookEntry"> | string
   title?: Prisma.StringWithAggregatesFilter<"LogbookEntry"> | string
   summary?: Prisma.StringWithAggregatesFilter<"LogbookEntry"> | string
   evidence?: Prisma.JsonNullableWithAggregatesFilter<"LogbookEntry">
@@ -255,7 +255,7 @@ export type LogbookEntryScalarWhereWithAggregatesInput = {
 
 export type LogbookEntryCreateInput = {
   id?: string
-  type: $Enums.LogbookEntryType
+  type: string
   title: string
   summary: string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -266,7 +266,7 @@ export type LogbookEntryCreateInput = {
 
 export type LogbookEntryUncheckedCreateInput = {
   id?: string
-  type: $Enums.LogbookEntryType
+  type: string
   title: string
   summary: string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -277,7 +277,7 @@ export type LogbookEntryUncheckedCreateInput = {
 
 export type LogbookEntryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumLogbookEntryTypeFieldUpdateOperationsInput | $Enums.LogbookEntryType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -288,7 +288,7 @@ export type LogbookEntryUpdateInput = {
 
 export type LogbookEntryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumLogbookEntryTypeFieldUpdateOperationsInput | $Enums.LogbookEntryType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -299,7 +299,7 @@ export type LogbookEntryUncheckedUpdateInput = {
 
 export type LogbookEntryCreateManyInput = {
   id?: string
-  type: $Enums.LogbookEntryType
+  type: string
   title: string
   summary: string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -310,7 +310,7 @@ export type LogbookEntryCreateManyInput = {
 
 export type LogbookEntryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumLogbookEntryTypeFieldUpdateOperationsInput | $Enums.LogbookEntryType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -321,7 +321,7 @@ export type LogbookEntryUpdateManyMutationInput = {
 
 export type LogbookEntryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumLogbookEntryTypeFieldUpdateOperationsInput | $Enums.LogbookEntryType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   evidence?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -357,10 +357,6 @@ export type LogbookEntryMinOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type EnumLogbookEntryTypeFieldUpdateOperationsInput = {
-  set?: $Enums.LogbookEntryType
 }
 
 
@@ -416,7 +412,7 @@ export type $LogbookEntryPayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    type: $Enums.LogbookEntryType
+    type: string
     title: string
     summary: string
     evidence: runtime.JsonValue | null
@@ -847,7 +843,7 @@ export interface Prisma__LogbookEntryClient<T, Null = never, ExtArgs extends run
  */
 export interface LogbookEntryFieldRefs {
   readonly id: Prisma.FieldRef<"LogbookEntry", 'String'>
-  readonly type: Prisma.FieldRef<"LogbookEntry", 'LogbookEntryType'>
+  readonly type: Prisma.FieldRef<"LogbookEntry", 'String'>
   readonly title: Prisma.FieldRef<"LogbookEntry", 'String'>
   readonly summary: Prisma.FieldRef<"LogbookEntry", 'String'>
   readonly evidence: Prisma.FieldRef<"LogbookEntry", 'Json'>
@@ -1064,7 +1060,6 @@ export type LogbookEntryCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many LogbookEntries.
    */
   data: Prisma.LogbookEntryCreateManyInput | Prisma.LogbookEntryCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1083,7 +1078,6 @@ export type LogbookEntryCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many LogbookEntries.
    */
   data: Prisma.LogbookEntryCreateManyInput | Prisma.LogbookEntryCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**

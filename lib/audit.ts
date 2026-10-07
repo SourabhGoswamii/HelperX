@@ -46,8 +46,8 @@ export type AuditEventType =
   | "info";
 
 const MAX_EVENTS = 500;
-const STORAGE_KEY = "merchmind.audit.v1";
-const PAGE_KEY = "merchmind.audit.page.v1";
+const STORAGE_KEY = "helperx.audit.v1";
+const PAGE_KEY = "helperx.audit.page.v1";
 
 type Listener = (events: AuditEvent[]) => void;
 

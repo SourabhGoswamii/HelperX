@@ -272,7 +272,7 @@ export default function UploadPage() {
       <header className="upload-header">
         <Link href="/" className="brand">
 
-          <span className="brand-name">MerchMind</span>
+          <span className="brand-name">HelperX</span>
 
           <span className="brand-context">/ workspace</span>
         </Link>
@@ -306,7 +306,7 @@ export default function UploadPage() {
 
           <p className="intro-copy">
             Orders, customers, products — drop the exports you
-            already trust. MerchMind will understand the
+            already trust. HelperX will understand the
             structure and prepare your workspace automatically.
           </p>
         </div>
@@ -509,7 +509,7 @@ export default function UploadPage() {
               <span>02</span>
 
               <p>
-                MerchMind understands its schema and meaning.
+                HelperX understands its schema and meaning.
               </p>
             </div>
 
