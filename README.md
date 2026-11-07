@@ -1,4 +1,4 @@
-# HelperX
+# HelperXXx
 
 > AI merchant intelligence for your business — turn raw CSV exports into clear
 > insights and actionable growth opportunities.
@@ -395,5 +395,6 @@ No license file is currently present in this repository. Unless a license is
 added later, **all rights are reserved by the original author**. If you
 intend to reuse, fork, or distribute this code, please add a `LICENSE` file
 first.
-#   H e l p e r X  
+#   H e l p e r X 
+ 
  
